@@ -160,12 +160,97 @@ kurento_room.controller('loginController', function ($scope, $http, ServiceParti
                 room.connect();
             });
 
+            // localStream.addEventListener("access-denied", function () {
+            //	ServiceParticipant.showError($window, LxNotificationService, {
+            //		error : {
+            //			message : "Access not granted to camera and microphone"
+            //				}
+            //	});
+            //});
             localStream.addEventListener("access-denied", function () {
-            	ServiceParticipant.showError($window, LxNotificationService, {
-            		error : {
-            			message : "Access not granted to camera and microphone"
-            				}
-            	});
+                console.log("*********access accept*********");
+                room.addEventListener("room-connected", function (roomEvent) {
+                        console.log("#####room connected#####");
+                	var streams = roomEvent.streams;
+                	if (displayPublished ) {
+                		localStream.subscribeToMyRemote();
+                	}
+                	localStream.publish();
+                    // ServiceRoom.setLocalStream(localStream.getWebRtcPeer());
+                    for (var i = 0; i < streams.length; i++) {
+                        ServiceParticipant.addParticipant(streams[i]);
+                    }
+                });
+
+                room.addEventListener("stream-published", function (streamEvent) {
+                	 ServiceParticipant.addLocalParticipant(localStream);
+                	 if (mirrorLocal && localStream.displayMyRemote()) {
+                		 var localVideo = kurento.Stream(room, {
+                             video: false,
+                             id: "localStream"
+                         });
+                		 localVideo.mirrorLocalStream(localStream.getWrStream());
+                		 ServiceParticipant.addLocalMirror(localVideo);
+                                 console.log("********local stream pulished******");
+                	 }
+                });
+                
+                room.addEventListener("stream-added", function (streamEvent) {
+                    ServiceParticipant.addParticipant(streamEvent.stream);
+                });
+
+                room.addEventListener("stream-removed", function (streamEvent) {
+                    ServiceParticipant.removeParticipantByStream(streamEvent.stream);
+                });
+
+                room.addEventListener("newMessage", function (msg) {
+                    ServiceParticipant.showMessage(msg.room, msg.user, msg.message);
+                });
+
+                room.addEventListener("error-room", function (error) {
+                    ServiceParticipant.showError($window, LxNotificationService, error);
+                });
+
+                room.addEventListener("error-media", function (msg) {
+                    ServiceParticipant.alertMediaError($window, LxNotificationService, msg.error, function (answer) {
+                    	console.warn("Leave room because of error: " + answer);
+                    	if (answer) {
+                    		kurento.close(true);
+                    	}
+                    });
+                });
+                
+                room.addEventListener("room-closed", function (msg) {
+                	if (msg.room !== $scope.roomName) {
+                		console.error("Closed room name doesn't match this room's name", 
+                				msg.room, $scope.roomName);
+                	} else {
+                		kurento.close(true);
+                		ServiceParticipant.forceClose($window, LxNotificationService, 'Room '
+                			+ msg.room + ' has been forcibly closed from server');
+                	}
+                });
+                
+                room.addEventListener("lost-connection", function(msg) {
+                    kurento.close(true);
+                    ServiceParticipant.forceClose($window, LxNotificationService,
+                      'Lost connection with room "' + msg.room +
+                      '". Please try reloading the webpage...');
+                  });
+                
+                room.addEventListener("stream-stopped-speaking", function (participantId) {
+                    ServiceParticipant.streamStoppedSpeaking(participantId);
+                 });
+
+                 room.addEventListener("stream-speaking", function (participantId) {
+                    ServiceParticipant.streamSpeaking(participantId);
+                 });
+
+                 room.addEventListener("update-main-speaker", function (participantId) {
+                     ServiceParticipant.updateMainSpeaker(participantId);
+                  });
+
+                room.connect();
             });
             localStream.init();
         });

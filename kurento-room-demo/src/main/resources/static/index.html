@@ -19,7 +19,16 @@
 <link type="text/css" rel="stylesheet" href="./css/googleapis-fonts.css">
 
 <!-- Bower JavaScript dependencies -->
-<script src="webjars/adapter.js/adapter.js"></script>
+
+</head>
+
+<body ng-app="kurento_room">
+	<div ng-view>
+		<!--display the view (login/call) with route system-->
+	</div>
+</body>
+
+<script src="./angular/adapter-latest.js"></script>
 <script src="webjars/jquery/dist/jquery.min.js"></script>
 <script src="webjars/jquery-ui/jquery-ui.min.js"></script>
 <script src="webjars/angular/angular.min.js"></script>
@@ -31,9 +40,9 @@
 <script src="webjars/EventEmitter.js/EventEmitter.min.js"></script>
 
 <!-- Kurento JavaScript dependencies -->
-<script src="./js/kurento-utils.js"></script>
+<script src="./angular/kurento-utils.js"></script>
 <script src="./js/kurento-jsonrpc.js"></script>
-<script src="./js/KurentoRoom.js"></script>
+<script src="./angular/KurentoRoom.js"></script>
 
 <!-- Custom JavaScript dependencies -->
 <script src="./angular/app.js"></script>
@@ -42,11 +51,4 @@
 <script src="./angular/services/Participants.js"></script>
 <script src="./angular/services/serviceParticipant.js"></script>
 <script src="./angular/services/serviceRoom.js"></script>
-</head>
-
-<body ng-app="kurento_room">
-	<div ng-view>
-		<!--display the view (login/call) with route system-->
-	</div>
-</body>
 </html>
