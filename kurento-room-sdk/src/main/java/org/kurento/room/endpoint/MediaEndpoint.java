@@ -30,6 +30,7 @@ import org.kurento.client.OnIceCandidateEvent;
 import org.kurento.client.RtpEndpoint;
 import org.kurento.client.SdpEndpoint;
 import org.kurento.client.WebRtcEndpoint;
+import org.kurento.client.RembParams;
 import org.kurento.room.api.MutedMediaType;
 import org.kurento.room.exception.RoomException;
 import org.kurento.room.exception.RoomException.Code;
@@ -243,9 +244,18 @@ public abstract class MediaEndpoint {
         @Override
         public void onSuccess(WebRtcEndpoint result) throws Exception {
           webEndpoint = result;
+
+          webEndpoint.setMinVideoSendBandwidth(6000);
+          webEndpoint.setMaxVideoSendBandwidth(8000);
+          webEndpoint.setMaxVideoRecvBandwidth(8000);
+          webEndpoint.setMinVideoRecvBandwidth(6000);
+          webEndpoint.setMinOutputBitrate(6000);
+          webEndpoint.setMaxOutputBitrate(8000);
+
           endpointLatch.countDown();
           log.trace("EP {}: Created a new WebRtcEndpoint", endpointName);
           endpointSubscription = registerElemErrListener(webEndpoint);
+          log.error("EP {}: ***********setBandwidth here***********", endpointName);
         }
 
         @Override
@@ -259,9 +269,21 @@ public abstract class MediaEndpoint {
         @Override
         public void onSuccess(RtpEndpoint result) throws Exception {
           endpoint = result;
+
+          endpoint.setMinVideoSendBandwidth(5000);
+          endpoint.setMaxVideoSendBandwidth(6000);
+          endpoint.setMaxVideoRecvBandwidth(6000);
+          endpoint.setMinVideoRecvBandwidth(5000);
+          webEndpoint.setMinVideoSendBandwidth(5000);
+          webEndpoint.setMaxVideoSendBandwidth(6000);
+          webEndpoint.setMaxVideoRecvBandwidth(6000);
+          webEndpoint.setMinVideoRecvBandwidth(5000);
+
           endpointLatch.countDown();
           log.trace("EP {}: Created a new RtpEndpoint", endpointName);
           endpointSubscription = registerElemErrListener(endpoint);
+          endpointSubscription = registerElemErrListener(webEndpoint);
+          log.error("EP {}: #########setBandwidth here#########", endpointName);
         }
 
         @Override

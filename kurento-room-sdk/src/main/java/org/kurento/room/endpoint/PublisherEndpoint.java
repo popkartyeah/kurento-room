@@ -362,6 +362,10 @@ public class PublisherEndpoint extends MediaEndpoint {
     source.connect(sink, new Continuation<Void>() {
       @Override
       public void onSuccess(Void result) throws Exception {
+        source.setMaxOutputBitrate(7000);
+        source.setMinOutputBitrate(6000);
+        source.setMaxOutputBitrate(6000);
+        log.warn("EP {}: *******************set bitrate here**********************", getEndpointName());
         log.debug("EP {}: Elements have been connected (source {} -> sink {})", getEndpointName(),
             source.getId(), sink.getId());
       }
